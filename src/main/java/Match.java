@@ -6,7 +6,7 @@ public class Match {
     private final String awayTeam;
     private int homeTeamPoints;
     private int awayTeamPoints;
-    private final Instant startTime;
+    private final long startTime;
 
     public Match(String homeTeam, String awayTeam) {
         if (homeTeam == null || homeTeam.isEmpty() || awayTeam == null || awayTeam.isEmpty()) {
@@ -16,7 +16,7 @@ public class Match {
         this.awayTeam = awayTeam;
         this.homeTeamPoints = 0;
         this.awayTeamPoints = 0;
-        this.startTime = Instant.now();
+        this.startTime = System.nanoTime();
     }
 
     public void updateScore(int homeTeamPoints, int awayTeamPoints) {
@@ -39,7 +39,7 @@ public class Match {
         return awayTeamPoints;
     }
 
-    public Instant getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
