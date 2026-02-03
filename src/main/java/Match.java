@@ -1,4 +1,6 @@
-import java.time.Instant;
+import static common.Constants.ERR_NEGATIVE_SCORE;
+import static common.KeyGenerator.generateKey;
+import static common.Constants.ERR_INVALID_NAMES;
 
 public class Match {
 
@@ -10,7 +12,7 @@ public class Match {
 
     public Match(String homeTeam, String awayTeam) {
         if (homeTeam == null || homeTeam.isEmpty() || awayTeam == null || awayTeam.isEmpty()) {
-            throw new IllegalArgumentException("Team names cannot be null or empty");
+            throw new IllegalArgumentException(ERR_INVALID_NAMES);
         }
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
@@ -21,7 +23,7 @@ public class Match {
 
     public void updateScore(int homeTeamPoints, int awayTeamPoints) {
         if (homeTeamPoints < 0 || awayTeamPoints < 0) {
-            throw new IllegalArgumentException("Score cannot be negative");
+            throw new IllegalArgumentException(ERR_NEGATIVE_SCORE);
         }
         this.homeTeamPoints = homeTeamPoints;
         this.awayTeamPoints = awayTeamPoints;
@@ -53,6 +55,6 @@ public class Match {
 
     @Override
     public String toString() {
-        return homeTeam + " - " + awayTeam;
+        return generateKey(homeTeam, awayTeam);
     }
 }

@@ -3,13 +3,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static common.KeyGenerator.generateKey;
+import static common.Constants.*;
+
 public class ScoreBoard {
-    private static final String ERR_GAME_EXISTS = "Game between %s and %s already exists.";
-    private static final String ERR_SAME_TEAMS = "Team names must be different.";
-    private static final String ERR_TEAMS_PLAYING = "One or two of the teams is already playing.";
-    private static final String ERR_INVALID_NAMES = "Team names cannot be null or empty";
-    private static final String ERR_GAME_NOT_FOUND = "No ongoing game between %s and %s found.";
-    private static final String ERR_NEGATIVE_SCORE = "Score cannot be negative";
 
     private final Map<String, Match> ongoingMatches;
 
@@ -74,7 +71,4 @@ public class ScoreBoard {
         return ongoingMatches.values().stream().anyMatch(m -> m.getHomeTeam().equals(home) || m.getAwayTeam().equals(home) || m.getHomeTeam().equals(away) || m.getAwayTeam().equals(away));
     }
 
-    private String generateKey(String home, String away) {
-        return home.toLowerCase() + "-" + away.toLowerCase();
-    }
 }

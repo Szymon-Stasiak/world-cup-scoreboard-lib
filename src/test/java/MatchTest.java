@@ -68,7 +68,7 @@ class MatchTest {
 
     @Test
     void givenMatch_whenCallingToString_thenProperFormatIsReturned() {
-        String expected = HOME_TEAM + " - " + AWAY_TEAM;
+        String expected = HOME_TEAM + "-" + AWAY_TEAM;
         assertEquals(expected, match.toString());
     }
 
