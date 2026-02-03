@@ -12,10 +12,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class MatchTest {
 
     private Match match;
+    private final String homeTeam = "TeamA";
+    private final String awayTeam = "TeamB";
 
     @BeforeEach
     void setUp() {
-        match = new Match("TeamA", "TeamB");
+        match = new Match(homeTeam, awayTeam);
     }
 
     @Test
@@ -27,8 +29,8 @@ class MatchTest {
 
     @Test
     void givenMatch_whenGettingTeams_thenCorrectNamesAreReturned() {
-        assertEquals("TeamA", match.getHomeTeam());
-        assertEquals("TeamB", match.getAwayTeam());
+        assertEquals(homeTeam, match.getHomeTeam());
+        assertEquals(awayTeam, match.getAwayTeam());
     }
 
     @ParameterizedTest
