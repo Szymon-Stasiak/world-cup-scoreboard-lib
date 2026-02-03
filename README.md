@@ -21,6 +21,7 @@ A simple Java library to manage football World Cup scores.
 
 - Java 21
 - JUnit 5 (version 5.14.2)
+- Jacoco (version 0.8.14)
 
 ## Installation
 
@@ -38,3 +39,15 @@ This project uses Maven for dependency management. To download and install all r
 ```bash
 mvn clean install
 ```
+
+### Usage (Installation)
+To use this library in your own project, you can add it as a dependency. First, ensure you have built the project locally using mvn clean install.
+Then, add the following dependency to your project's `pom.xml`:
+```xml
+<dependency>
+    <groupId>com.example</groupId>
+    <artifactId>world-cup-scoreboard-lib</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+`
