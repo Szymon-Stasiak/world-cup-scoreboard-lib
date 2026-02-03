@@ -55,7 +55,11 @@ public class ScoreBoard {
     }
 
     public List<Match> getSummary() {
-        return ongoingMatches.values().stream().sorted(Comparator.comparingInt(Match::getTotalScore).reversed().thenComparing(Comparator.comparingLong(Match::getStartTime).reversed())).toList();
+        return ongoingMatches.values().stream()
+                .map(match -> new Match(match))
+                .sorted(Comparator.comparingInt(Match::getTotalScore).reversed()
+                        .thenComparing(Comparator.comparingLong(Match::getStartTime).reversed()))
+                .toList();
     }
 
     private boolean isAnyTeamAlreadyPlaying(String home, String away) {

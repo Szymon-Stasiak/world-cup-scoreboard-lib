@@ -97,6 +97,26 @@ class MatchTest {
                 ERR_INVALID_NAMES);
     }
 
+    @Test
+    void copyConstructor_shouldCreateIndependentCopy() {
+        Match original = new Match(HOME_TEAM, AWAY_TEAM);
+        original.updateScore(2, 1);
+
+        Match copy = new Match(original);
+
+        assertEquals(original.getHomeTeam(), copy.getHomeTeam());
+        assertEquals(original.getAwayTeam(), copy.getAwayTeam());
+        assertEquals(original.getHomeTeamPoints(), copy.getHomeTeamPoints());
+        assertEquals(original.getAwayTeamPoints(), copy.getAwayTeamPoints());
+        assertEquals(original.getStartTime(), copy.getStartTime());
+
+        assertNotSame(original, copy);
+
+        copy.updateScore(5, 5);
+        assertEquals(2, original.getHomeTeamPoints());
+        assertEquals(1, original.getAwayTeamPoints());
+    }
+
     static Stream<Arguments> validScoreCases() {
         return Stream.of(
                 Arguments.of(3, 2),
