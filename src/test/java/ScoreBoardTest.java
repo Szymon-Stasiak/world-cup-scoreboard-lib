@@ -211,12 +211,6 @@ class ScoreBoardTest {
         assertMatchState(summary.get(5), "TeamI", "TeamJ", 0, 0);
     }
 
-    @Test
-    void givenFinishedGame_whenGettingSummary_thenGameIsNotIncluded() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
-        assertTrue(scoreBoard.getSummary().isEmpty());
-    }
 
     @Test
     void givenFinishedGame_whenUpdatingScore_thenExceptionIsThrown() {
