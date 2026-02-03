@@ -70,17 +70,6 @@ class MatchTest {
 
 
     @Test
-    void givenEmptyTeamName_whenCreatingMatch_thenExceptionIsThrown() {
-
-        var exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Match("", "TeamB")
-        );
-
-        assertEquals("Team names cannot be null or empty", exception.getMessage());
-    }
-
-    @Test
     void givenMatch_whenCallingToString_thenProperFormatIsReturned() {
         assertEquals("TeamA - TeamB", match.toString());
     }
@@ -111,12 +100,14 @@ class MatchTest {
         assertEquals("Score cannot be negative", exception.getMessage());
     }
 
-    @Test
-    void givenNullTeamName_whenCreatingMatch_thenExceptionIsThrown() {
+
+    @ParameterizedTest
+    @MethodSource("invalidTeamNames")
+    void givenInvalidTeamNames_whenCreatingMatch_thenExceptionIsThrown(String home, String away) {
 
         var exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> new Match(null, "TeamB")
+                () -> new Match(home, away)
         );
 
         assertEquals("Team names cannot be null or empty", exception.getMessage());
@@ -146,5 +137,14 @@ class MatchTest {
                 Arguments.of(Integer.MAX_VALUE, 0, Integer.MAX_VALUE)
         );
 
+    }
+
+    static Stream<org.junit.jupiter.params.provider.Arguments> invalidTeamNames() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of(null, "TeamB"),
+                org.junit.jupiter.params.provider.Arguments.of("", "TeamB"),
+                org.junit.jupiter.params.provider.Arguments.of("TeamA", null),
+                org.junit.jupiter.params.provider.Arguments.of("TeamA", "")
+        );
     }
 }
