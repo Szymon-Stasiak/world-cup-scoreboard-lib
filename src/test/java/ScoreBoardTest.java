@@ -58,7 +58,7 @@ class ScoreBoardTest {
     @Test
     void givenGameWithOneTeamCurrentlyPlaying_whenStartingNewGame_thenThrowsException() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        assertThrowsWithMessage(IllegalArgumentException.class,
+        assertThrowsWithMessage(IllegalStateException.class,
                 () -> scoreBoard.startNewGame(HOME_TEAM, OTHER_TEAM),
                 ERR_TEAMS_PLAYING);
         assertEquals(1, scoreBoard.getSummary().size());
@@ -81,11 +81,11 @@ class ScoreBoardTest {
         }
         List<Match> summary = scoreBoard.getSummary();
         assertEquals(numberOfGames, summary.size());
-        long uniqueStartTimes = summary.stream()
-                .map(Match::getStartTime)
+        long uniqueMatches = summary.stream()
+                .map(Match::toString)
                 .distinct()
                 .count();
-        assertEquals(numberOfGames, uniqueStartTimes);
+        assertEquals(numberOfGames, uniqueMatches);
     }
 
     @Test
