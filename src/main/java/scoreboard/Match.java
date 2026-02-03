@@ -52,4 +52,12 @@ public class Match {
         return awayTeam;
     }
 
+    public Match(Match source) {
+        this.homeTeam = source.homeTeam;
+        this.awayTeam = source.awayTeam;
+        this.homeTeamPoints = source.homeTeamPoints;
+        this.awayTeamPoints = source.awayTeamPoints;
+        this.startTime = source.startTime;
+    }
+
 }
