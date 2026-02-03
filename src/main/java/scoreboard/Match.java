@@ -1,4 +1,7 @@
-import java.time.Instant;
+package scoreboard;
+
+import static scoreboard.common.Validators.validateNames;
+
 
 public class Match {
 
@@ -6,22 +9,20 @@ public class Match {
     private final String awayTeam;
     private int homeTeamPoints;
     private int awayTeamPoints;
-    private final Instant startTime;
+    private final long startTime;
 
     public Match(String homeTeam, String awayTeam) {
-        if (homeTeam == null || homeTeam.isEmpty() || awayTeam == null || awayTeam.isEmpty()) {
-            throw new IllegalArgumentException("Team names cannot be null or empty");
-        }
+        validateNames(homeTeam, awayTeam);
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
         this.homeTeamPoints = 0;
         this.awayTeamPoints = 0;
-        this.startTime = Instant.now();
+        this.startTime = System.nanoTime();
     }
 
     public void updateScore(int homeTeamPoints, int awayTeamPoints) {
         if (homeTeamPoints < 0 || awayTeamPoints < 0) {
-            throw new IllegalArgumentException("Score cannot be negative");
+            throw new IllegalArgumentException(Constants.ERR_NEGATIVE_SCORE);
         }
         this.homeTeamPoints = homeTeamPoints;
         this.awayTeamPoints = awayTeamPoints;
@@ -39,7 +40,7 @@ public class Match {
         return awayTeamPoints;
     }
 
-    public Instant getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
@@ -51,8 +52,4 @@ public class Match {
         return awayTeam;
     }
 
-    @Override
-    public String toString() {
-        return homeTeam + " - " + awayTeam;
-    }
 }
