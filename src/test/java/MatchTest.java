@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -12,34 +13,35 @@ import static org.junit.jupiter.api.Assertions.*;
 class MatchTest {
 
     private Match match;
-    private final String homeTeam = "TeamA";
-    private final String awayTeam = "TeamB";
+
+    private static final String HOME_TEAM = "TeamA";
+    private static final String AWAY_TEAM = "TeamB";
+
+    private static final String ERR_NEGATIVE_SCORE = "Score cannot be negative";
+    private static final String ERR_INVALID_NAMES = "Team names cannot be null or empty";
 
     @BeforeEach
     void setUp() {
-        match = new Match(homeTeam, awayTeam);
+        match = new Match(HOME_TEAM, AWAY_TEAM);
     }
 
     @Test
     void givenNewMatch_whenCreated_thenScoresAreZeroAndStartTimeIsSet() {
-        assertEquals(0, match.getHomeTeamPoints());
-        assertEquals(0, match.getAwayTeamPoints());
+        assertMatchScore(match, 0, 0);
         assertNotNull(match.getStartTime());
     }
 
     @Test
     void givenMatch_whenGettingTeams_thenCorrectNamesAreReturned() {
-        assertEquals(homeTeam, match.getHomeTeam());
-        assertEquals(awayTeam, match.getAwayTeam());
+        assertEquals(HOME_TEAM, match.getHomeTeam());
+        assertEquals(AWAY_TEAM, match.getAwayTeam());
     }
 
     @ParameterizedTest
     @MethodSource("validScoreCases")
     void givenValidScores_whenUpdateScore_thenScoresAreUpdatedCorrectly(int home, int away) {
         match.updateScore(home, away);
-
-        assertEquals(home, match.getHomeTeamPoints());
-        assertEquals(away, match.getAwayTeamPoints());
+        assertMatchScore(match, home, away);
     }
 
     @Test
@@ -53,37 +55,30 @@ class MatchTest {
     @Test
     void givenZeroScores_whenUpdateScore_thenScoresRemainZero() {
         match.updateScore(0, 0);
-
-        assertEquals(0, match.getHomeTeamPoints());
-        assertEquals(0, match.getAwayTeamPoints());
+        assertMatchScore(match, 0, 0);
     }
 
     @ParameterizedTest
     @MethodSource("totalScoreCases")
-    void givenUpdatedScores_whenGettingTotal_thenCorrectTotalIsReturned(
-            int home,
-            int away,
-            int expectedTotal
-    ) {
+    void givenUpdatedScores_whenGettingTotal_thenCorrectTotalIsReturned(int home, int away, int expectedTotal) {
         match.updateScore(home, away);
 
         assertEquals(expectedTotal, match.getTotalScore());
     }
 
-
     @Test
     void givenMatch_whenCallingToString_thenProperFormatIsReturned() {
-        assertEquals("TeamA - TeamB", match.toString());
+        String expected = HOME_TEAM + " - " + AWAY_TEAM;
+        assertEquals(expected, match.toString());
     }
 
     @Test
     void givenScoreUpdate_whenUpdatingScore_thenStartTimeDoesNotChange() {
-
-        var startTime = match.getStartTime();
+        var initialStartTime = match.getStartTime();
 
         match.updateScore(1, 1);
 
-        assertEquals(startTime, match.getStartTime());
+        assertEquals(initialStartTime, match.getStartTime());
     }
 
     @ParameterizedTest
@@ -93,28 +88,18 @@ class MatchTest {
             "-1, -1"
     })
     void givenNegativeScore_whenUpdatingScore_thenExceptionIsThrown(int home, int away) {
-
-        var exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> match.updateScore(home, away)
-        );
-
-        assertEquals("Score cannot be negative", exception.getMessage());
+        assertThrowsWithMessage(IllegalArgumentException.class,
+                () -> match.updateScore(home, away),
+                ERR_NEGATIVE_SCORE);
     }
-
 
     @ParameterizedTest
     @MethodSource("fixtures.DaraProviders#invalidTeamNames")
     void givenInvalidTeamNames_whenCreatingMatch_thenExceptionIsThrown(String home, String away) {
-
-        var exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> new Match(home, away)
-        );
-
-        assertEquals("Team names cannot be null or empty", exception.getMessage());
+        assertThrowsWithMessage(IllegalArgumentException.class,
+                () -> new Match(home, away),
+                ERR_INVALID_NAMES);
     }
-
 
     static Stream<Arguments> validScoreCases() {
         return Stream.of(
@@ -138,8 +123,17 @@ class MatchTest {
                 Arguments.of(100, 200, 300),
                 Arguments.of(Integer.MAX_VALUE, 0, Integer.MAX_VALUE)
         );
-
     }
 
+    private void assertMatchScore(Match match, int expectedHome, int expectedAway) {
+        assertAll("Match score",
+                () -> assertEquals(expectedHome, match.getHomeTeamPoints()),
+                () -> assertEquals(expectedAway, match.getAwayTeamPoints())
+        );
+    }
 
+    private <T extends Throwable> void assertThrowsWithMessage(Class<T> expectedType, Executable executable, String expectedMessage) {
+        T exception = assertThrows(expectedType, executable);
+        assertEquals(expectedMessage, exception.getMessage());
+    }
 }
