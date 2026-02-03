@@ -102,7 +102,7 @@ class MatchTest {
 
 
     @ParameterizedTest
-    @MethodSource("invalidTeamNames")
+    @MethodSource("fixtures.DaraProviders#invalidTeamNames")
     void givenInvalidTeamNames_whenCreatingMatch_thenExceptionIsThrown(String home, String away) {
 
         var exception = assertThrows(
@@ -139,12 +139,5 @@ class MatchTest {
 
     }
 
-    static Stream<org.junit.jupiter.params.provider.Arguments> invalidTeamNames() {
-        return Stream.of(
-                org.junit.jupiter.params.provider.Arguments.of(null, "TeamB"),
-                org.junit.jupiter.params.provider.Arguments.of("", "TeamB"),
-                org.junit.jupiter.params.provider.Arguments.of("TeamA", null),
-                org.junit.jupiter.params.provider.Arguments.of("TeamA", "")
-        );
-    }
+
 }
