@@ -1,4 +1,4 @@
-package common;
+package scoreboard;
 
 public class Constants {
     public static final String ERR_GAME_EXISTS = "Game between %s and %s already exists.";

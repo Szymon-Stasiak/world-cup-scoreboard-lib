@@ -1,8 +1,12 @@
+package scoreboard;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static scoreboard.Constants.*;
 
 import java.util.List;
 
@@ -15,13 +19,6 @@ class ScoreBoardTest {
     private static final String HOME_TEAM = "TeamA";
     private static final String AWAY_TEAM = "TeamB";
     private static final String OTHER_TEAM = "TeamC";
-
-    private static final String ERR_GAME_EXISTS = "Game between %s and %s already exists.";
-    private static final String ERR_SAME_TEAMS = "Team names must be different.";
-    private static final String ERR_TEAMS_PLAYING = "One or two of the teams is already playing.";
-    private static final String ERR_INVALID_NAMES = "Team names cannot be null or empty";
-    private static final String ERR_GAME_NOT_FOUND = "No ongoing game between %s and %s found.";
-    private static final String ERR_NEGATIVE_SCORE = "Score cannot be negative";
 
     @BeforeEach
     void setUp() {
@@ -228,7 +225,7 @@ class ScoreBoardTest {
     }
 
     private void assertMatchState(Match match, String expectedHome, String expectedAway, int expectedHomePts, int expectedAwayPts) {
-        assertAll("Match properties",
+        assertAll("scoreboard.Match properties",
                 () -> assertEquals(expectedHome, match.getHomeTeam()),
                 () -> assertEquals(expectedAway, match.getAwayTeam()),
                 () -> assertEquals(expectedHomePts, match.getHomeTeamPoints()),

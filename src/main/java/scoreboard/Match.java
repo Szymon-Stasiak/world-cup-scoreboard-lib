@@ -1,6 +1,7 @@
-import static common.Constants.ERR_NEGATIVE_SCORE;
-import static common.KeyGenerator.generateKey;
-import static common.Constants.ERR_INVALID_NAMES;
+package scoreboard;
+
+import static scoreboard.common.Validators.validateNames;
+
 
 public class Match {
 
@@ -11,9 +12,7 @@ public class Match {
     private final long startTime;
 
     public Match(String homeTeam, String awayTeam) {
-        if (homeTeam == null || homeTeam.isEmpty() || awayTeam == null || awayTeam.isEmpty()) {
-            throw new IllegalArgumentException(ERR_INVALID_NAMES);
-        }
+        validateNames(homeTeam, awayTeam);
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
         this.homeTeamPoints = 0;
@@ -23,7 +22,7 @@ public class Match {
 
     public void updateScore(int homeTeamPoints, int awayTeamPoints) {
         if (homeTeamPoints < 0 || awayTeamPoints < 0) {
-            throw new IllegalArgumentException(ERR_NEGATIVE_SCORE);
+            throw new IllegalArgumentException(Constants.ERR_NEGATIVE_SCORE);
         }
         this.homeTeamPoints = homeTeamPoints;
         this.awayTeamPoints = awayTeamPoints;
@@ -53,8 +52,4 @@ public class Match {
         return awayTeam;
     }
 
-    @Override
-    public String toString() {
-        return generateKey(homeTeam, awayTeam);
-    }
 }

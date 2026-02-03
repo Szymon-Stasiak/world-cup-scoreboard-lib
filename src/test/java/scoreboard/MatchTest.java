@@ -1,3 +1,5 @@
+package scoreboard;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -67,12 +69,6 @@ class MatchTest {
     }
 
     @Test
-    void givenMatch_whenCallingToString_thenProperFormatIsReturned() {
-        String expected = HOME_TEAM + "-" + AWAY_TEAM;
-        assertEquals(expected, match.toString());
-    }
-
-    @Test
     void givenScoreUpdate_whenUpdatingScore_thenStartTimeDoesNotChange() {
         var initialStartTime = match.getStartTime();
 
@@ -126,7 +122,7 @@ class MatchTest {
     }
 
     private void assertMatchScore(Match match, int expectedHome, int expectedAway) {
-        assertAll("Match score",
+        assertAll("scoreboard.Match score",
                 () -> assertEquals(expectedHome, match.getHomeTeamPoints()),
                 () -> assertEquals(expectedAway, match.getAwayTeamPoints())
         );

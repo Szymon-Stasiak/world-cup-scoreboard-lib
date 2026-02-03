@@ -1,10 +1,11 @@
+package scoreboard;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static common.KeyGenerator.generateKey;
-import static common.Constants.*;
+import static scoreboard.common.Validators.validateNames;
 
 public class ScoreBoard {
 
@@ -19,11 +20,11 @@ public class ScoreBoard {
 
         String key = generateKey(homeTeam, awayTeam);
         if (ongoingMatches.containsKey(key)) {
-            throw new IllegalArgumentException(String.format(ERR_GAME_EXISTS, homeTeam, awayTeam));
+            throw new IllegalArgumentException(String.format(Constants.ERR_GAME_EXISTS, homeTeam, awayTeam));
         }
 
         if (isAnyTeamAlreadyPlaying(homeTeam, awayTeam)) {
-            throw new IllegalStateException(ERR_TEAMS_PLAYING);
+            throw new IllegalStateException(Constants.ERR_TEAMS_PLAYING);
         }
 
         ongoingMatches.put(key, new Match(homeTeam, awayTeam));
@@ -33,12 +34,12 @@ public class ScoreBoard {
         validateNames(homeTeam, awayTeam);
 
         if (homeScore < 0 || awayScore < 0) {
-            throw new IllegalArgumentException(ERR_NEGATIVE_SCORE);
+            throw new IllegalArgumentException(Constants.ERR_NEGATIVE_SCORE);
         }
 
         Match match = ongoingMatches.get(generateKey(homeTeam, awayTeam));
         if (match == null) {
-            throw new IllegalArgumentException(String.format(ERR_GAME_NOT_FOUND, homeTeam, awayTeam));
+            throw new IllegalArgumentException(String.format(Constants.ERR_GAME_NOT_FOUND, homeTeam, awayTeam));
         }
 
         match.updateScore(homeScore, awayScore);
@@ -49,7 +50,7 @@ public class ScoreBoard {
 
         String key = generateKey(homeTeam, awayTeam);
         if (ongoingMatches.remove(key) == null) {
-            throw new IllegalArgumentException(String.format(ERR_GAME_NOT_FOUND, homeTeam, awayTeam));
+            throw new IllegalArgumentException(String.format(Constants.ERR_GAME_NOT_FOUND, homeTeam, awayTeam));
         }
     }
 
@@ -57,18 +58,11 @@ public class ScoreBoard {
         return ongoingMatches.values().stream().sorted(Comparator.comparingInt(Match::getTotalScore).reversed().thenComparing(Comparator.comparingLong(Match::getStartTime).reversed())).toList();
     }
 
-
-    private void validateNames(String home, String away) {
-        if (home == null || away == null || home.isBlank() || away.isBlank()) {
-            throw new IllegalArgumentException(ERR_INVALID_NAMES);
-        }
-        if (home.equals(away)) {
-            throw new IllegalArgumentException(ERR_SAME_TEAMS);
-        }
-    }
-
     private boolean isAnyTeamAlreadyPlaying(String home, String away) {
         return ongoingMatches.values().stream().anyMatch(m -> m.getHomeTeam().equals(home) || m.getAwayTeam().equals(home) || m.getHomeTeam().equals(away) || m.getAwayTeam().equals(away));
     }
 
+    private String generateKey(String home, String away) {
+        return home + "-" + away;
+    }
 }
