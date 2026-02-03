@@ -6,10 +6,12 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static scoreboard.Constants.*;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+
+import static ReflectionUtils.AdvancedGetter.getFieldValue;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ScoreBoardTest {
@@ -19,6 +21,14 @@ class ScoreBoardTest {
     private static final String HOME_TEAM = "TeamA";
     private static final String AWAY_TEAM = "TeamB";
     private static final String OTHER_TEAM = "TeamC";
+    private static final String MATCH_KEY = "TeamA-TeamB";
+
+    private static final String ERR_GAME_EXISTS = "Game between %s and %s already exists.";
+    private static final String ERR_SAME_TEAMS = "Team names must be different.";
+    private static final String ERR_TEAMS_PLAYING = "One or two of the teams is already playing.";
+    private static final String ERR_INVALID_NAMES = "Team names cannot be null or empty";
+    private static final String ERR_GAME_NOT_FOUND = "No ongoing game between %s and %s found.";
+    private static final String ERR_NEGATIVE_SCORE = "Score cannot be negative";
 
     @BeforeEach
     void setUp() {
@@ -28,9 +38,12 @@ class ScoreBoardTest {
     @Test
     void givenNoExistingGame_whenStartingNewGame_thenScoreIsZeroAndStartTimeIsSet() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        List<Match> summary = scoreBoard.getSummary();
-        assertEquals(1, summary.size());
-        Match match = summary.get(0);
+
+        Map<String, Match> ongoingGames = getOngoingGames();
+        Match match = ongoingGames.get(MATCH_KEY);
+
+        assertEquals(1, ongoingGames.size());
+        assertNotNull(match, "Match should exist in internal state");
         assertMatchState(match, HOME_TEAM, AWAY_TEAM, 0, 0);
         assertNotNull(match.getStartTime());
     }
@@ -38,10 +51,14 @@ class ScoreBoardTest {
     @Test
     void givenExistingGame_whenStartingNewGame_thenThrowsException() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM),
                 String.format(ERR_GAME_EXISTS, HOME_TEAM, AWAY_TEAM));
-        assertEquals(1, scoreBoard.getSummary().size());
+
+        Map<String, Match> ongoingGames = getOngoingGames();
+        assertEquals(1, ongoingGames.size());
+        assertNotNull(ongoingGames.get(MATCH_KEY));
     }
 
     @Test
@@ -49,16 +66,19 @@ class ScoreBoardTest {
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.startNewGame(HOME_TEAM, HOME_TEAM),
                 ERR_SAME_TEAMS);
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
     void givenGameWithOneTeamCurrentlyPlaying_whenStartingNewGame_thenThrowsException() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+
         assertThrowsWithMessage(IllegalStateException.class,
                 () -> scoreBoard.startNewGame(HOME_TEAM, OTHER_TEAM),
                 ERR_TEAMS_PLAYING);
-        assertEquals(1, scoreBoard.getSummary().size());
+
+        assertEquals(1, getOngoingGames().size());
     }
 
     @ParameterizedTest
@@ -67,7 +87,8 @@ class ScoreBoardTest {
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.startNewGame(home, away),
                 ERR_INVALID_NAMES);
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
@@ -76,20 +97,28 @@ class ScoreBoardTest {
         for (int i = 1; i <= numberOfGames; i++) {
             scoreBoard.startNewGame("Team" + (i * 2 - 1), "Team" + (i * 2));
         }
-        List<Match> summary = scoreBoard.getSummary();
-        assertEquals(numberOfGames, summary.size());
-        long uniqueMatches = summary.stream()
-                .map(Match::toString)
-                .distinct()
-                .count();
-        assertEquals(numberOfGames, uniqueMatches);
+
+        Map<String, Match> ongoingGames = getOngoingGames();
+        assertEquals(numberOfGames, ongoingGames.size());
+
+        long lastTime = 0;
+        for (int i = 1; i <= numberOfGames; i++) {
+            String home = "Team" + (i * 2 - 1);
+            String away = "Team" + (i * 2);
+            Match match = ongoingGames.get(home + "-" + away);
+
+            assertNotNull(match);
+            assertNotEquals(lastTime, match.getStartTime());
+            lastTime = match.getStartTime();
+        }
     }
 
     @Test
     void givenOngoingGame_whenFinishingGame_thenGameIsRemoved() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
         scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
@@ -97,7 +126,8 @@ class ScoreBoardTest {
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM),
                 String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @ParameterizedTest
@@ -106,26 +136,32 @@ class ScoreBoardTest {
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.finishGame(home, away),
                 ERR_INVALID_NAMES);
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
     void givenOngoingGame_whenFinishingTwice_thenThrowsException() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
         scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
+
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM),
                 String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
     void givenOngoingGame_whenUpdatingScore_thenScoreIsUpdated() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
         scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3);
-        List<Match> summary = scoreBoard.getSummary();
-        assertEquals(1, summary.size());
-        assertMatchState(summary.get(0), HOME_TEAM, AWAY_TEAM, 2, 3);
+
+        Map<String, Match> ongoingGames = getOngoingGames();
+        assertEquals(1, ongoingGames.size());
+
+        Match match = ongoingGames.get(MATCH_KEY);
+        assertMatchState(match, HOME_TEAM, AWAY_TEAM, 2, 3);
     }
 
     @Test
@@ -133,16 +169,19 @@ class ScoreBoardTest {
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3),
                 String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
     void givenOngoingGame_whenUpdatingScoreWithNegativeValues_thenThrowsException() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, -1, 3),
                 ERR_NEGATIVE_SCORE);
-        assertEquals(1, scoreBoard.getSummary().size());
+
+        assertEquals(1, getOngoingGames().size());
     }
 
     @Test
@@ -150,7 +189,11 @@ class ScoreBoardTest {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
         scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3);
         scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 4, 5);
-        assertMatchState(scoreBoard.getSummary().get(0), HOME_TEAM, AWAY_TEAM, 4, 5);
+
+        Map<String, Match> ongoingGames = getOngoingGames();
+        assertEquals(1, ongoingGames.size());
+
+        assertMatchState(ongoingGames.get(MATCH_KEY), HOME_TEAM, AWAY_TEAM, 4, 5);
     }
 
     @ParameterizedTest
@@ -159,7 +202,8 @@ class ScoreBoardTest {
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.updateScore(home, away, 2, 3),
                 ERR_INVALID_NAMES);
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
     @Test
@@ -167,7 +211,9 @@ class ScoreBoardTest {
         createGameWithScore("Team1", "Team2", 1, 1);
         createGameWithScore("Team3", "Team4", 2, 2);
         createGameWithScore("Team5", "Team6", 0, 0);
+
         List<Match> summary = scoreBoard.getSummary();
+
         assertEquals(3, summary.size());
         assertMatchState(summary.get(0), "Team3", "Team4", 2, 2);
         assertMatchState(summary.get(1), "Team1", "Team2", 1, 1);
@@ -179,7 +225,10 @@ class ScoreBoardTest {
         createGameWithScore("Team1", "Team2", 2, 2);
         createGameWithScore("Team3", "Team4", 1, 3);
         createGameWithScore("Team5", "Team6", 0, 4);
+
         List<Match> summary = scoreBoard.getSummary();
+
+        assertEquals(3, summary.size());
         assertMatchState(summary.get(0), "Team5", "Team6", 0, 4);
         assertMatchState(summary.get(1), "Team3", "Team4", 1, 3);
         assertMatchState(summary.get(2), "Team1", "Team2", 2, 2);
@@ -198,7 +247,9 @@ class ScoreBoardTest {
         createGameWithScore("TeamG", "TeamH", 5, 2);
         createGameWithScore("TeamI", "TeamJ", 0, 0);
         createGameWithScore("TeamK", "TeamL", 1, 4);
+
         List<Match> summary = scoreBoard.getSummary();
+
         assertEquals(6, summary.size());
         assertMatchState(summary.get(0), "TeamG", "TeamH", 5, 2);
         assertMatchState(summary.get(1), "TeamC", "TeamD", 4, 3);
@@ -208,24 +259,38 @@ class ScoreBoardTest {
         assertMatchState(summary.get(5), "TeamI", "TeamJ", 0, 0);
     }
 
+    @Test
+    void givenFinishedGame_whenGettingSummary_thenGameIsNotIncluded() {
+        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
+
+        assertTrue(scoreBoard.getSummary().isEmpty());
+    }
 
     @Test
     void givenFinishedGame_whenUpdatingScore_thenExceptionIsThrown() {
         scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
         scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
+
         assertThrowsWithMessage(IllegalArgumentException.class,
                 () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3),
                 String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
-        assertTrue(scoreBoard.getSummary().isEmpty());
+
+        assertTrue(getOngoingGames().isEmpty());
     }
 
-    private void createGameWithScore(String home, String away, int homeScore, int awayScore) {
+    @SuppressWarnings("unchecked")
+    private Map<String, Match> getOngoingGames() {
+        return (HashMap<String, Match>) getFieldValue(scoreBoard, "ongoingMatches");
+    }
+
+    private void createGameWithScore(String home, String away, int homePts, int awayPts) {
         scoreBoard.startNewGame(home, away);
-        scoreBoard.updateScore(home, away, homeScore, awayScore);
+        scoreBoard.updateScore(home, away, homePts, awayPts);
     }
 
     private void assertMatchState(Match match, String expectedHome, String expectedAway, int expectedHomePts, int expectedAwayPts) {
-        assertAll("scoreboard.Match properties",
+        assertAll("Match State",
                 () -> assertEquals(expectedHome, match.getHomeTeam()),
                 () -> assertEquals(expectedAway, match.getAwayTeam()),
                 () -> assertEquals(expectedHomePts, match.getHomeTeamPoints()),
