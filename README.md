@@ -14,6 +14,8 @@ A simple Java library to manage football World Cup scores.
     * This ensures that every line of code is explicitly tested and verified by the suite, rather than relying on third-party code generation.
 
     * The focus remains on testing business logic rather than framework behavior.
+    * 
+* This is a library for a football World Cup scoreboard. So i assume that sum of goals in a match will not exceed Integer.MAX_VALUE.
 
 ## Requirements
 
