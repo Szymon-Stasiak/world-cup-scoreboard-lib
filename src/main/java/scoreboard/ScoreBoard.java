@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static scoreboard.Constants.KEY_SEPARATOR;
 import static scoreboard.common.Validators.validateNames;
 
 public class ScoreBoard {
@@ -67,6 +68,6 @@ public class ScoreBoard {
     }
 
     private String generateKey(String home, String away) {
-        return home + "-" + away;
+        return home + KEY_SEPARATOR + away;
     }
 }

@@ -136,3 +136,21 @@ Then, add the following dependency to your project's `pom.xml`:
 </dependency>
 ```
 `
+
+## Testing
+To run the tests, use the following Maven command:
+
+```bash
+mvn test
+```
+
+## Code Coverage
+To generate a code coverage report using Jacoco, run:
+
+```bash
+mvn clean verify
+```
+
+The report will be generated in the `target/site/jacoco` directory. Open the `index.html` file in a web browser to view the coverage details.
+
+![Code Coverage Report](src/main/resources/img.png)
