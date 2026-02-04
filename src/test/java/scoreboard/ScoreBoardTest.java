@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import scoreboard.common.Validators;
 
@@ -76,6 +77,19 @@ class ScoreBoardTest {
     }
 
     @Test
+    void givenMultipleNotProperGames_whenStartingNewGames_thenExceptionsAreThrown() {
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_EXISTS, HOME_TEAM, AWAY_TEAM));
+        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewMatch(HOME_TEAM, OTHER_TEAM), ERR_TEAMS_PLAYING);
+        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewMatch(OTHER_TEAM, AWAY_TEAM), ERR_TEAMS_PLAYING);
+        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewMatch(AWAY_TEAM, HOME_TEAM), ERR_TEAMS_PLAYING);
+        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewMatch(AWAY_TEAM, OTHER_TEAM), ERR_TEAMS_PLAYING);
+        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewMatch(OTHER_TEAM, HOME_TEAM), ERR_TEAMS_PLAYING);
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.startNewMatch(AWAY_TEAM, AWAY_TEAM), ERR_SAME_TEAMS);
+        assertEquals(1, scoreBoard.getSummary().size());
+    }
+
+    @Test
     void givenOngoingGame_whenFinishingGame_thenGameIsRemoved() {
         scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
         scoreBoard.finishMatch(HOME_TEAM, AWAY_TEAM);
@@ -119,10 +133,15 @@ class ScoreBoardTest {
         assertTrue(scoreBoard.getSummary().isEmpty());
     }
 
-    @Test
-    void givenOngoingGame_whenUpdatingScoreWithNegativeValues_thenThrowsException() {
+    @ParameterizedTest
+    @CsvSource({
+            "-1, 0",
+            "0, -1",
+            "-5, -3"
+    })
+    void givenOngoingGame_whenUpdatingScoreWithNegativeValues_thenThrowsException(int homeScore, int awayScore) {
         scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
-        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, -1, 3), ERR_NEGATIVE_SCORE);
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, homeScore, awayScore), ERR_NEGATIVE_SCORE);
         assertEquals(1, scoreBoard.getSummary().size());
     }
 
