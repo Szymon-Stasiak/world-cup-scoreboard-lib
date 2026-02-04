@@ -15,7 +15,7 @@ public class ScoreBoard {
         this.ongoingMatches = new HashMap<>();
     }
 
-    public void startNewGame(String homeTeam, String awayTeam) {
+    public void startNewMatch(String homeTeam, String awayTeam) {
         validateNames(homeTeam, awayTeam);
 
         String key = generateKey(homeTeam, awayTeam);
@@ -45,7 +45,7 @@ public class ScoreBoard {
         match.updateScore(homeScore, awayScore);
     }
 
-    public void finishGame(String homeTeam, String awayTeam) {
+    public void finishMatch(String homeTeam, String awayTeam) {
         validateNames(homeTeam, awayTeam);
 
         String key = generateKey(homeTeam, awayTeam);

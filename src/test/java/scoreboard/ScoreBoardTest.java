@@ -28,7 +28,7 @@ class ScoreBoardTest {
 
     @Test
     void givenNoExistingGame_whenStartingNewGame_thenScoreIsZeroAndStartTimeIsSet() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
         List<Match> summary = scoreBoard.getSummary();
         assertEquals(1, summary.size());
         Match match = summary.getFirst();
@@ -37,21 +37,21 @@ class ScoreBoardTest {
 
     @Test
     void givenExistingGame_whenStartingNewGame_thenThrowsException() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_EXISTS, HOME_TEAM, AWAY_TEAM));
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_EXISTS, HOME_TEAM, AWAY_TEAM));
         assertEquals(1, scoreBoard.getSummary().size());
     }
 
     @Test
     void givenGameWithSameTeamNames_whenStartingNewGame_thenThrowsException() {
-        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.startNewGame(HOME_TEAM, HOME_TEAM), ERR_SAME_TEAMS);
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.startNewMatch(HOME_TEAM, HOME_TEAM), ERR_SAME_TEAMS);
         assertTrue(scoreBoard.getSummary().isEmpty());
     }
 
     @Test
     void givenGameWithOneTeamCurrentlyPlaying_whenStartingNewGame_thenThrowsException() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewGame(HOME_TEAM, OTHER_TEAM), ERR_TEAMS_PLAYING);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+        assertThrowsWithMessage(IllegalStateException.class, () -> scoreBoard.startNewMatch(HOME_TEAM, OTHER_TEAM), ERR_TEAMS_PLAYING);
         assertEquals(1, scoreBoard.getSummary().size());
     }
 
@@ -67,7 +67,7 @@ class ScoreBoardTest {
     void givenMultipleProperGames_whenStartingNewGames_thenAllGamesAreAdded() {
         int numberOfGames = 10;
         for (int i = 1; i <= numberOfGames; i++) {
-            scoreBoard.startNewGame("Team" + (i * 2 - 1), "Team" + (i * 2));
+            scoreBoard.startNewMatch("Team" + (i * 2 - 1), "Team" + (i * 2));
         }
         List<Match> summary = scoreBoard.getSummary();
         assertEquals(numberOfGames, summary.size());
@@ -77,14 +77,14 @@ class ScoreBoardTest {
 
     @Test
     void givenOngoingGame_whenFinishingGame_thenGameIsRemoved() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.finishMatch(HOME_TEAM, AWAY_TEAM);
         assertTrue(scoreBoard.getSummary().isEmpty());
     }
 
     @Test
     void givenNonExistingGame_whenFinishingGame_thenThrowsException() {
-        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.finishMatch(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
         assertTrue(scoreBoard.getSummary().isEmpty());
     }
 
@@ -98,15 +98,15 @@ class ScoreBoardTest {
 
     @Test
     void givenOngoingGame_whenFinishingTwice_thenThrowsException() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
-        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.finishMatch(HOME_TEAM, AWAY_TEAM);
+        assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.finishMatch(HOME_TEAM, AWAY_TEAM), String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
         assertTrue(scoreBoard.getSummary().isEmpty());
     }
 
     @Test
     void givenOngoingGame_whenUpdatingScore_thenScoreIsUpdated() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
         scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3);
         List<Match> summary = scoreBoard.getSummary();
         assertEquals(1, summary.size());
@@ -121,14 +121,14 @@ class ScoreBoardTest {
 
     @Test
     void givenOngoingGame_whenUpdatingScoreWithNegativeValues_thenThrowsException() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
         assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, -1, 3), ERR_NEGATIVE_SCORE);
         assertEquals(1, scoreBoard.getSummary().size());
     }
 
     @Test
     void givenOngoingGame_whenUpdatingScoreTwice_thenScoreIsUpdatedCorrectly() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
         scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3);
         scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 4, 5);
         assertMatchState(scoreBoard.getSummary().getFirst(), HOME_TEAM, AWAY_TEAM, 4, 5);
@@ -191,14 +191,14 @@ class ScoreBoardTest {
 
     @Test
     void givenFinishedGame_whenUpdatingScore_thenExceptionIsThrown() {
-        scoreBoard.startNewGame(HOME_TEAM, AWAY_TEAM);
-        scoreBoard.finishGame(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.startNewMatch(HOME_TEAM, AWAY_TEAM);
+        scoreBoard.finishMatch(HOME_TEAM, AWAY_TEAM);
         assertThrowsWithMessage(IllegalArgumentException.class, () -> scoreBoard.updateScore(HOME_TEAM, AWAY_TEAM, 2, 3), String.format(ERR_GAME_NOT_FOUND, HOME_TEAM, AWAY_TEAM));
         assertTrue(scoreBoard.getSummary().isEmpty());
     }
 
     private void createGameWithScore(String home, String away, int homeScore, int awayScore) {
-        scoreBoard.startNewGame(home, away);
+        scoreBoard.startNewMatch(home, away);
         scoreBoard.updateScore(home, away, homeScore, awayScore);
     }
 
