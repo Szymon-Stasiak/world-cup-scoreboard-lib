@@ -4,7 +4,7 @@ import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.stream.Stream;
 
-public class DaraProviders {
+public class DataProviders {
     static Stream<Arguments> invalidTeamNames() {
         return Stream.of(
                 org.junit.jupiter.params.provider.Arguments.of(null, "TeamB"),
