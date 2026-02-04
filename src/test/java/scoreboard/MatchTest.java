@@ -12,8 +12,9 @@ import scoreboard.common.Validators;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static scoreboard.Constants.ERR_INVALID_NAMES;
 import static scoreboard.Constants.ERR_SAME_TEAMS;
+import static scoreboard.Constants.ERR_INVALID_NAMES;
+import static scoreboard.Constants.ERR_NEGATIVE_SCORE;
 
 class MatchTest {
 
@@ -21,9 +22,6 @@ class MatchTest {
 
     private static final String HOME_TEAM = "TeamA";
     private static final String AWAY_TEAM = "TeamB";
-
-    private static final String ERR_NEGATIVE_SCORE = "Score cannot be negative";
-    private static final String ERR_INVALID_NAMES = "Team names cannot be null or empty";
 
     @BeforeEach
     void setUp() {

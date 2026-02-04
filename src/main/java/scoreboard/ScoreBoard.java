@@ -56,7 +56,7 @@ public class ScoreBoard {
 
     public List<Match> getSummary() {
         return ongoingMatches.values().stream()
-                .map(match -> new Match(match))
+                .map(Match::new)
                 .sorted(Comparator.comparingInt(Match::getTotalScore).reversed()
                         .thenComparing(Comparator.comparingLong(Match::getStartTime).reversed()))
                 .toList();
