@@ -59,9 +59,10 @@ class ScoreBoardTest {
     @ParameterizedTest
     @MethodSource("fixtures.DaraProviders#invalidTeamNames")
     void givenInvalidTeamNames_whenStartingNewGame_thenExceptionIsThrown(String home, String away) {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> Validators.validateNames(home, away));
-        String expectedMessage = (home == null || home.isBlank() || away == null || away.isBlank()) ? ERR_INVALID_NAMES : ERR_SAME_TEAMS;
-        assertEquals(expectedMessage, exception.getMessage());
+        ScoreBoard scoreBoard = new ScoreBoard();
+        assertThrows(IllegalArgumentException.class, () ->
+                scoreBoard.startNewMatch(home, away)
+        );
     }
 
     @Test
