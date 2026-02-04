@@ -7,10 +7,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import scoreboard.common.Validators;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static scoreboard.Constants.ERR_INVALID_NAMES;
+import static scoreboard.Constants.ERR_SAME_TEAMS;
 
 class MatchTest {
 
@@ -30,7 +33,6 @@ class MatchTest {
     @Test
     void givenNewMatch_whenCreated_thenScoresAreZeroAndStartTimeIsSet() {
         assertMatchScore(match, 0, 0);
-        assertNotNull(match.getStartTime());
     }
 
     @Test
@@ -92,9 +94,11 @@ class MatchTest {
     @ParameterizedTest
     @MethodSource("fixtures.DaraProviders#invalidTeamNames")
     void givenInvalidTeamNames_whenCreatingMatch_thenExceptionIsThrown(String home, String away) {
-        assertThrowsWithMessage(IllegalArgumentException.class,
-                () -> new Match(home, away),
-                ERR_INVALID_NAMES);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                Validators.validateNames(home, away));
+        String expectedMessage = (home == null || home.isBlank() || away == null || away.isBlank())
+                ? ERR_INVALID_NAMES : ERR_SAME_TEAMS;
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test

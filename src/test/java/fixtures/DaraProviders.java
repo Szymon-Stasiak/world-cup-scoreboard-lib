@@ -10,7 +10,8 @@ public class DaraProviders {
                 org.junit.jupiter.params.provider.Arguments.of(null, "TeamB"),
                 org.junit.jupiter.params.provider.Arguments.of("", "TeamB"),
                 org.junit.jupiter.params.provider.Arguments.of("TeamA", null),
-                org.junit.jupiter.params.provider.Arguments.of("TeamA", "")
+                org.junit.jupiter.params.provider.Arguments.of("TeamA", ""),
+                org.junit.jupiter.params.provider.Arguments.of("TeamA", "TeamA")
         );
     }
 }
