@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static scoreboard.Constants.KEY_SEPARATOR;
 import static scoreboard.common.Validators.validateNames;
 
 public class ScoreBoard {
@@ -15,7 +16,7 @@ public class ScoreBoard {
         this.ongoingMatches = new HashMap<>();
     }
 
-    public void startNewGame(String homeTeam, String awayTeam) {
+    public void startNewMatch(String homeTeam, String awayTeam) {
         validateNames(homeTeam, awayTeam);
 
         String key = generateKey(homeTeam, awayTeam);
@@ -45,7 +46,7 @@ public class ScoreBoard {
         match.updateScore(homeScore, awayScore);
     }
 
-    public void finishGame(String homeTeam, String awayTeam) {
+    public void finishMatch(String homeTeam, String awayTeam) {
         validateNames(homeTeam, awayTeam);
 
         String key = generateKey(homeTeam, awayTeam);
@@ -56,7 +57,7 @@ public class ScoreBoard {
 
     public List<Match> getSummary() {
         return ongoingMatches.values().stream()
-                .map(match -> new Match(match))
+                .map(Match::new)
                 .sorted(Comparator.comparingInt(Match::getTotalScore).reversed()
                         .thenComparing(Comparator.comparingLong(Match::getStartTime).reversed()))
                 .toList();
@@ -67,6 +68,6 @@ public class ScoreBoard {
     }
 
     private String generateKey(String home, String away) {
-        return home + "-" + away;
+        return home + KEY_SEPARATOR + away;
     }
 }

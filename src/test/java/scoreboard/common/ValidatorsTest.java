@@ -1,51 +1,36 @@
 package scoreboard.common;
 
 import org.junit.jupiter.api.Test;
-import scoreboard.common.Validators;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static scoreboard.Constants.*;
 
 class ValidatorsTest {
 
-    @Test
-    void givenValidNames_whenValidateNames_thenNoExceptionThrown() {
-        assertDoesNotThrow(() -> Validators.validateNames("TeamA", "TeamB"));
+
+    @ParameterizedTest
+    @MethodSource("fixtures.DaraProviders#invalidTeamNames")
+    void givenInvalidNames_whenValidateNames_thenIllegalArgumentExceptionThrown(String home, String away) {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                Validators.validateNames(home, away));
+        String expectedMessage = (home == null || home.isBlank() || away == null || away.isBlank())
+                ? ERR_INVALID_NAMES : ERR_SAME_TEAMS;
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
-    void givenNullHomeName_whenValidateNames_thenIllegalArgumentExceptionThrown() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                Validators.validateNames(null, "TeamB"));
-        assertEquals(ERR_INVALID_NAMES, exception.getMessage());
-    }
+    void givenInvalidNameWithKeySeparator_whenValidateNames_thenIllegalArgumentExceptionThrown() {
+        String home = "Team-A";
+        String away = "TeamB";
+        IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () ->
+                Validators.validateNames(home, away));
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () ->
+                Validators.validateNames(away, home));
 
-    @Test
-    void givenNullAwayName_whenValidateNames_thenIllegalArgumentExceptionThrown() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                Validators.validateNames("TeamA", null));
-        assertEquals(ERR_INVALID_NAMES, exception.getMessage());
-    }
-
-    @Test
-    void givenEmptyHomeName_whenValidateNames_thenIllegalArgumentExceptionThrown() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                Validators.validateNames("", "TeamB"));
-        assertEquals(ERR_INVALID_NAMES, exception.getMessage());
-    }
-
-    @Test
-    void givenEmptyAwayName_whenValidateNames_thenIllegalArgumentExceptionThrown() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                Validators.validateNames("TeamA", ""));
-        assertEquals(ERR_INVALID_NAMES, exception.getMessage());
-    }
-
-    @Test
-    void givenSameTeamNames_whenValidateNames_thenIllegalArgumentExceptionThrown() {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                Validators.validateNames("TeamA", "TeamA"));
-        assertEquals(ERR_SAME_TEAMS, exception.getMessage());
+        assertEquals(ERR_INVALID_TEAM_NAME_CHARACTERS, exception1.getMessage());
+        assertEquals(ERR_INVALID_TEAM_NAME_CHARACTERS, exception2.getMessage());
     }
 
 }

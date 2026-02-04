@@ -16,13 +16,91 @@ A simple Java library to manage football World Cup scores.
 
     * The focus remains on testing business logic rather than framework behavior.
   
-* This is a library for a football World Cup scoreboard. So i assume that sum of goals in a match will not exceed Integer.MAX_VALUE.
+* This is a library for a football World Cup scoreboard. So I assume that sum of goals in a match will not exceed Integer.MAX_VALUE.
 
-* I assume that names of teams are unique. So there will not be two teams with the same name. And also that names of teams are case-sensitive. So "Team A" and "team a" will be considered different teams.
+* I assume that names of teams are unique. So there will not be two teams with the same name. And also that names of teams are case-sensitive. So "Team A" and "team a" will be considered different teams. I assume that names cannot have the "-" character in them. Because i use that character as separator in some methods.
 
-* I assume that usage of that library will be inner application. So i did decided to return mutable collections from methods. Because that will give more flexibility to the users of that library.
+* I assume that providing additional non-sensitive data (like match creation time) is acceptable, as there were no constraints against it.
+# Documentation – Library Usage
 
-* I assume that give more data but not sensitive data (like time of creation of match) is okay and acceptable. Because in description there is no information about that.(no words "only" or "just" or "nothing more than")
+This library provides a simple API for managing live football match scores during the World Cup or similar tournaments.
+
+It allows you to:
+
+* Start new matches
+* Update scores
+* Finish matches
+* Retrieve ordered match summaries
+
+All operations are performed in-memory and are optimized for simplicity and performance.
+
+---
+
+## Main Components
+
+### ScoreBoard
+
+The main entry point of the library.
+It manages all ongoing matches.
+
+**Responsibilities:**
+
+* Stores active matches
+* Prevents duplicate or conflicting games
+* Validates team names
+* Provides match summaries
+
+Note: The getSummary() method returns matches ordered by their total score. If the total score is the same, the most recently started match is displayed first.
+
+---
+
+### Match
+
+Represents a single football match.
+
+**Stores:**
+
+* Home team name
+* Away team name
+* Current score
+* Match start time
+
+Each match is immutable from the outside. Updates are handled through ScoreBoard.
+
+## Usage Example
+
+```java
+public static void main(String[] args) {
+
+  ScoreBoard board = new ScoreBoard();
+
+  // Start new matches
+  board.startNewMatch("Mexico", "Canada");
+  board.startNewMatch("Spain", "Brazil");
+
+  // Update scores
+  board.updateScore("Mexico", "Canada", 0, 5);
+  board.updateScore("Spain", "Brazil", 2, 2);
+
+  // Finish a match
+  board.finishMatch("Mexico", "Canada");
+
+  // Get summary
+  List<Match> summary = board.getSummary();
+
+  for (Match match : summary) {
+    System.out.println(
+            match.getHomeTeam() + " " +
+                    match.getHomeTeamPoints() + " - " +
+                    match.getAwayTeamPoints() + " " +
+                    match.getAwayTeam()
+    );
+  }
+}
+```
+
+In this example, we create a `ScoreBoard`, start two matches, update their scores, finish one match, and then print the summary of ongoing matches.
+
 
 ## Requirements
 
@@ -52,9 +130,27 @@ To use this library in your own project, you can add it as a dependency. First, 
 Then, add the following dependency to your project's `pom.xml`:
 ```xml
 <dependency>
-    <groupId>com.example</groupId>
-    <artifactId>world-cup-scoreboard-lib</artifactId>
-    <version>1.0.0</version>
+  <groupId>org.example</groupId>
+  <artifactId>world-cup-scoreboard-lib</artifactId>
+  <version>1.0-SNAPSHOT</version>
 </dependency>
 ```
 `
+
+## Testing
+To run the tests, use the following Maven command:
+
+```bash
+mvn test
+```
+
+## Code Coverage
+To generate a code coverage report using Jacoco, run:
+
+```bash
+mvn clean verify
+```
+
+The report will be generated in the `target/site/jacoco` directory. Open the `index.html` file in a web browser to view the coverage details.
+
+![Code Coverage Report](src/main/resources/img.png)
