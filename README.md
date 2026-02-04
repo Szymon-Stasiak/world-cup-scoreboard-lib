@@ -1,6 +1,11 @@
 # World Cup Scoreboard Library
 
-A simple Java library to manage football World Cup scores.
+A minimalist, high-performance Java library designed to handle live football match scores. This library provides a robust internal engine to manage match states, track scores, and generate ordered summaries without the need for external databases or heavy frameworks.
+
+This library serves as a showcase of Test-Driven Development (TDD) practices.
+
+* Test-First Evolution: Every method and validation rule was driven by specific test cases before a single line of production code was written.
+* Clean Code Focus: The architecture emphasizes the Red-Green-Refactor discipline, resulting in a predictable and highly maintainable codebase.
 
 # Assumptions & Design Decisions
 
