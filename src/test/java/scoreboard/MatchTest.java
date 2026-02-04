@@ -7,13 +7,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
-import scoreboard.common.Validators;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static scoreboard.Constants.ERR_SAME_TEAMS;
-import static scoreboard.Constants.ERR_INVALID_NAMES;
 import static scoreboard.Constants.ERR_NEGATIVE_SCORE;
 
 class MatchTest {
