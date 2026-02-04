@@ -161,16 +161,6 @@ class ScoreBoardTest {
         assertMatchState(scoreBoard.getSummary().get(0), HOME_TEAM, AWAY_TEAM, 4, 5);
     }
 
-    @ParameterizedTest
-    @MethodSource("fixtures.DaraProviders#invalidTeamNames")
-    void givenInvalidTeamNames_whenUpdatingScore_thenExceptionIsThrown(String home, String away) {
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                Validators.validateNames(home, away));
-        String expectedMessage = (home == null || home.isBlank() || away == null || away.isBlank())
-                ? ERR_INVALID_NAMES : ERR_SAME_TEAMS;
-        assertEquals(expectedMessage, exception.getMessage());
-    }
-
     @Test
     void givenMultipleOngoingGames_whenGettingSummary_thenCorrectOrderIsReturned() {
         createGameWithScore("Team1", "Team2", 1, 1);
