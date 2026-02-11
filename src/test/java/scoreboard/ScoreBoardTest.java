@@ -56,7 +56,7 @@ class ScoreBoardTest {
     }
 
     @ParameterizedTest
-    @MethodSource("fixtures.DaraProviders#invalidTeamNames")
+    @MethodSource("fixtures.DataProviders#invalidTeamNames")
     void givenInvalidTeamNames_whenStartingNewGame_thenExceptionIsThrown(String home, String away) {
         ScoreBoard scoreBoard = new ScoreBoard();
         assertThrows(IllegalArgumentException.class, () ->

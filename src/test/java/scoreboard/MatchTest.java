@@ -87,7 +87,7 @@ class MatchTest {
     }
 
     @ParameterizedTest
-    @MethodSource("fixtures.DaraProviders#invalidTeamNames")
+    @MethodSource("fixtures.DataProviders#invalidTeamNames")
     void givenInvalidTeamNames_whenCreatingMatch_thenExceptionIsThrown(String home, String away) {
         assertThrows(IllegalArgumentException.class, () ->
                 new Match(home, away)
