@@ -11,7 +11,7 @@ class ValidatorsTest {
 
 
     @ParameterizedTest
-    @MethodSource("fixtures.DaraProviders#invalidTeamNames")
+    @MethodSource("fixtures.DataProviders#invalidTeamNames")
     void givenInvalidNames_whenValidateNames_thenIllegalArgumentExceptionThrown(String home, String away) {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 Validators.validateNames(home, away));
